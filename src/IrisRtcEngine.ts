@@ -14,6 +14,7 @@
   IAgoraRTCRemoteUser,
   ILocalTrack,
   ILocalVideoTrack,
+  LowStreamParameter,
   NetworkQuality,
   RemoteStreamFallbackType,
   RemoteStreamType,
@@ -1593,6 +1594,18 @@ export default class IrisRtcEngine {
   private async setParameters(params: { parameters: string }): Promise<void> {
     const obj = JSON.parse(params.parameters);
     const key = Object.keys(obj)[0];
+    // Check for low bit rate stream parameter and forward to
+    // the specific method for web
+    if (key.includes('lowBitRateStreamParameter')) {
+        const settings = obj[key];
+        const lowStreamParams: LowStreamParameter = {
+          width: settings.width,
+          height: settings.height,
+          framerate: settings.frameRate,
+          bitrate: settings.bitRate,
+        };
+        return this._client?.setLowStreamParameter(lowStreamParams);
+    }
     return AgoraRTC.setParameter(key, obj[key]);
   }
 
